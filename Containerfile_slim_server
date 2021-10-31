@@ -1,0 +1,35 @@
+
+FROM registry.opensuse.org/opensuse/tumbleweed:latest
+
+#RUN zypper in -y -t pattern network_admin console; \
+#RUN zypper in -y -t pattern console; \
+#RUN zypper in -y -t pattern base; \
+RUN zypper in -y -t pattern minimal_base; \
+	zypper in -y openssh-clients libsodium23 libpcre2-8-0 curl libargon2-1 \
+			libasan6 busybox-vi busybox-less shadow libcares2; \
+	rm -rf /var/cache;
+
+#RUN zypper in -y python3-requests libsodium23 libpcre2-8-0 curl argon2 libcares2
+#RUN zypper in -y libsodium23 libpcre2-8-0 curl argon2 libcares2
+
+RUN useradd pissnet
+
+ADD --chown=pissnet:users pissircd-piss60 /home/pissnet/pissircd
+ADD --chown=pissnet:users unrealircd /home/pissnet/unrealircd
+ADD --chown=pissnet:users conf /home/pissnet/unrealircd/conf
+ADD --chown=pissnet:users data /home/pissnet/unrealircd/data
+
+USER pissnet
+
+LABEL name=pissnet
+
+WORKDIR /home/pissnet/unrealircd
+
+EXPOSE 6667 6697 6900
+
+ENV ASAN_OPTIONS="abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1:log_path=/home/pissnet/unrealircd/tmp/unrealircd_asan:detect_leaks=0"
+
+CMD bash -c "bin/unrealircd -F"
+
+# podman run --name=pissnet --user=pissnet -it -p6667:6667 -p6697:6697 -p6900:6900 -p [::]:6900:6900 -p [::]:6667:6667 -p [::]:6697:6697 pissnet-devel-server-5 
+

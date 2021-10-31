@@ -1,0 +1,35 @@
+
+FROM registry.opensuse.org/opensuse/tumbleweed:latest
+
+RUN zypper in -y openssh-clients libsodium23 libpcre2-8-0 curl libargon2-1 \
+			libasan6 shadow libcares2 \
+			patterns-devel-base-devel_basis git curl vim less file \
+			find iputils patterns-base-console; \
+	rm -rf /var/cache;
+
+RUN useradd pissnet
+
+COPY --chown=pissnet:users pissircd-piss60 /home/pissnet/pissircd
+COPY --chown=pissnet:users unrealircd /home/pissnet/unrealircd
+COPY --chown=pissnet:users conf /home/pissnet/unrealircd/conf
+COPY --chown=pissnet:users data /home/pissnet/unrealircd/data
+
+USER pissnet
+
+LABEL name=pissnet
+
+WORKDIR /home/pissnet/unrealircd
+
+EXPOSE 6667 6697 6900
+
+# CMD bash -c "/home/pissnet/unrealircd/unrealircd start; \
+# 		while true; do \
+# 			bash --login; \
+# 		done;"
+
+ENV ASAN_OPTIONS="abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1:log_path=/home/pissnet/unrealircd/tmp/unrealircd_asan:detect_leaks=0"
+
+CMD bash -c "bin/unrealircd -F"
+
+# podman run --name=pissnet --user=pissnet -it -p6667:6667 -p6697:6697 -p6900:6900 -p [::]:6900:6900 -p [::]:6667:6667 -p [::]:6697:6697
+

@@ -1,0 +1,60 @@
+
+FROM registry.opensuse.org/opensuse/tumbleweed:latest
+
+RUN zypper in -y -t pattern devel_basis devel_C_C++ network_admin console; \
+	zypper in -y python3 libasan6 libopenssl-devel libsodium-devel pcre2-devel libcurl-devel argon2-devel c-ares-devel libcares2 mt
+
+RUN useradd pissnet;
+
+ENV WORKDIR=/home/pissnet/pissircd
+ENV HOME=/home/pissnet
+
+#VOLUME /home/pissnet/unrealircd
+
+#RUN git clone --single-branch https://github.com/rbertoche/pissircd $WORKDIR
+
+COPY --chown=pissnet:users pissircd-piss60 $WORKDIR
+
+WORKDIR $WORKDIR
+
+RUN chown -R pissnet:users /home/pissnet; \
+	rm -rf $HOME/unrealircd/*
+
+USER pissnet
+
+# RUN ./Config
+
+# if for some reason don't want to call Config (both seem to work)
+# - actually the certificate didn't turn out to come right without a terminal linked to input
+#   so falling back to these lines
+RUN \
+./autogen.sh && \
+	./configure --with-showlistmodes --enable-ssl --enable-libcurl \
+		--with-nick-history=2000 --with-permissions=0600 --enable-dynamic-linking && \
+echo -e 'make pem\n\n\n\n\n\n' | bash -
+
+RUN mkdir -p $HOME/unrealircd/tmp $HOME/unrealircd/conf/tls; \
+	cp server.cert.pem server.key.pem server.req.pem $HOME/unrealircd/conf/tls
+
+RUN make -j4; \
+	make install;
+
+RUN make clean;
+
+USER root
+
+RUN rm -rf /var/cache/zypp/packages
+
+WORKDIR $HOME/unrealircd
+
+EXPOSE 6667 6697 6900
+
+USER pissnet
+
+# CMD bash -c "unrealircd start; \
+# 		while true; do \
+# 			bash --login; \
+# 		done;"
+# 
+
+#REM tbc
