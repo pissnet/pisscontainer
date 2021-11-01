@@ -29,12 +29,13 @@ USER pissnet
 RUN ./Config
 
 # if for some reason don't want to call Config (both seem to work)
-# - actually the certificate didn't turn out to come right without a terminal linked to input
-#   so falling back to these lines
 #RUN \
 #./autogen.sh && \
 #	./configure --with-showlistmodes --enable-ssl --enable-libcurl \
 #		--with-nick-history=2000 --with-permissions=0600 --enable-dynamic-linking && \
+
+# one of the certificates fail to create if it doesn't receive any input
+# hence this line is necessary even if you run Config
 
 RUN echo -e 'make pem\n\n\n\n\n\n' | bash -
 
@@ -48,18 +49,10 @@ RUN make clean;
 
 USER root
 
-RUN rm -rf /var/cache/zypp/packages
-
 WORKDIR $HOME/unrealircd
 
 EXPOSE 6667 6697 6900
 
 USER pissnet
-
-# CMD bash -c "unrealircd start; \
-# 		while true; do \
-# 			bash --login; \
-# 		done;"
-# 
 
 #REM tbc
