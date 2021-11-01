@@ -55,6 +55,7 @@ podman build -f Containerfile_full_server --build-arg BRANCH="$BRANCH" \
 # 		--label REV="$SHORTREV"
 
 echo "Running..."
+echo "^P ^Q for detaching"
 podman run -it --name="$repo_$branch" --user=pissnet \
 		-p6667:6667 -p6697:6697 -p6900:6900 \
 		-p [::]:6900:6900 -p [::]:6667:6667 -p [::]:6697:6697 \
