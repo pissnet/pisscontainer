@@ -9,7 +9,12 @@ RUN zypper in -y openssh-clients libsodium23 libpcre2-8-0 curl libargon2-1 \
 
 RUN useradd pissnet
 
-COPY --chown=pissnet:users pissircd-piss60 /home/pissnet/pissircd
+ADD pissnet.tar.gz .
+
+ARG BRANCH
+
+RUN mv pissircd-$BRANCH pissircd;
+
 COPY --chown=pissnet:users unrealircd /home/pissnet/unrealircd
 COPY --chown=pissnet:users conf /home/pissnet/unrealircd/conf
 COPY --chown=pissnet:users data /home/pissnet/unrealircd/data

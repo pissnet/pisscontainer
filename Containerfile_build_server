@@ -13,12 +13,22 @@ ENV HOME=/home/pissnet
 
 #RUN git clone --single-branch https://github.com/rbertoche/pissircd $WORKDIR
 
-COPY --chown=pissnet:users pissircd-piss60 $WORKDIR
+#COPY --chown=pissnet:users pissircd-piss60 $WORKDIR
+
+#ADD https://codeload.github.com/pissnet/pissircd/zip/refs/heads/pissnet.zip .
+#ADD https://codeload.github.com/pissnet/pissircd/tar.gz/refs/heads/pissnet pissnet.tar.gz
+
+WORKDIR $HOME
+
+ADD pissnet.tar.gz .
+
+ARG BRANCH
+
+RUN chown -R pissnet:users .; \
+	rm -rf unrealircd/*; \
+	mv pissircd-$BRANCH pissircd;
 
 WORKDIR $WORKDIR
-
-RUN chown -R pissnet:users /home/pissnet; \
-	rm -rf $HOME/unrealircd/*
 
 USER pissnet
 
