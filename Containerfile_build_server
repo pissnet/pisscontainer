@@ -11,37 +11,30 @@ ENV HOME=/home/pissnet
 
 #VOLUME /home/pissnet/unrealircd
 
-#RUN git clone --single-branch https://github.com/rbertoche/pissircd $WORKDIR
-
-#COPY --chown=pissnet:users pissircd-piss60 $WORKDIR
-
-#ADD https://codeload.github.com/pissnet/pissircd/zip/refs/heads/pissnet.zip .
-#ADD https://codeload.github.com/pissnet/pissircd/tar.gz/refs/heads/pissnet pissnet.tar.gz
-
 WORKDIR $HOME
 
-ADD pissnet.tar.gz .
+ADD pissircd pissircd
 
 ARG BRANCH
 
 RUN chown -R pissnet:users .; \
-	rm -rf unrealircd/*; \
-	mv pissircd-$BRANCH pissircd;
+	rm -rf unrealircd/*;
 
 WORKDIR $WORKDIR
 
 USER pissnet
 
-# RUN ./Config
+RUN ./Config
 
 # if for some reason don't want to call Config (both seem to work)
 # - actually the certificate didn't turn out to come right without a terminal linked to input
 #   so falling back to these lines
-RUN \
-./autogen.sh && \
-	./configure --with-showlistmodes --enable-ssl --enable-libcurl \
-		--with-nick-history=2000 --with-permissions=0600 --enable-dynamic-linking && \
-echo -e 'make pem\n\n\n\n\n\n' | bash -
+#RUN \
+#./autogen.sh && \
+#	./configure --with-showlistmodes --enable-ssl --enable-libcurl \
+#		--with-nick-history=2000 --with-permissions=0600 --enable-dynamic-linking && \
+
+RUN echo -e 'make pem\n\n\n\n\n\n' | bash -
 
 RUN mkdir -p $HOME/unrealircd/tmp $HOME/unrealircd/conf/tls; \
 	cp server.cert.pem server.key.pem server.req.pem $HOME/unrealircd/conf/tls

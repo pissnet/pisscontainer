@@ -14,11 +14,9 @@ RUN zypper in -y -t pattern minimal_base; \
 
 RUN useradd pissnet
 
-ADD pissnet.tar.gz .
+ADD pissircd pissircd
 
 ARG BRANCH
-
-RUN mv pissircd-$BRANCH pissircd;
 
 ADD --chown=pissnet:users unrealircd /home/pissnet/unrealircd
 ADD --chown=pissnet:users conf /home/pissnet/unrealircd/conf
