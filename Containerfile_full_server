@@ -4,7 +4,7 @@ FROM registry.opensuse.org/opensuse/tumbleweed:latest
 RUN zypper in -y openssh-clients libsodium23 libpcre2-8-0 curl libargon2-1 \
 			libasan6 shadow libcares2 \
 			patterns-devel-base-devel_basis git curl vim less file \
-			find iputils patterns-base-console iproute; \
+			find iputils patterns-base-console iproute wget; \
 	rm -rf /var/cache;
 
 RUN useradd pissnet
