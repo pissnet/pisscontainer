@@ -67,9 +67,9 @@ podman build -f Containerfile_full_server --build-arg BRANCH="$BRANCH" \
 		-t opensuse/tumbleweed/pissnet-full:"$BRANCH" \
 		--label REV="$SHORTREV"
 
-podman build -f Containerfile_slim_server --build-arg BRANCH="$BRANCH" \
-		-t opensuse/tumbleweed/pissnet-slim:"$BRANCH" \
-		--label REV="$SHORTREV"
+# podman build -f Containerfile_slim_server --build-arg BRANCH="$BRANCH" \
+#		-t opensuse/tumbleweed/pissnet-slim:"$BRANCH" \
+#		--label REV="$SHORTREV"
 
 echo "Running..."
 echo "^P ^Q for detaching"
