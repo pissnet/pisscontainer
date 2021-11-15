@@ -57,14 +57,16 @@ mkdir -p unrealircd
 mkdir -p data
 mkdir -p conf
 echo "Building unrealircd..."
-podman build -f Containerfile_build_server --build-arg BRANCH="$BRANCH" \
+podman build -f Containerfile_build_server \
+		--build-arg BRANCH="$BRANCH" \
 		-v "$PWD/unrealircd:/home/pissnet/unrealircd" \
 		-t opensuse/tumbleweed/pissnet-build:"$BRANCH" \
 		-t opensuse/tumbleweed/pissnet-build:"$SHORTREV" \
 		--label REV="$SHORTREV"
 
 echo "Building full_server..."
-podman build -f Containerfile_full_server --build-arg BRANCH="$BRANCH" \
+podman build -f Containerfile_full_server \
+		--build-arg BRANCH="$BRANCH" \
 		-t opensuse/tumbleweed/pissnet-full:"$BRANCH" \
 		-t opensuse/tumbleweed/pissnet-full:"$SHORTREV" \
 		--label REV="$SHORTREV"
