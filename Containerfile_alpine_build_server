@@ -24,13 +24,15 @@ WORKDIR $WORKDIR
 
 USER pissnet
 
-RUN ./Config
+# RUN ./Config
 
 # if for some reason don't want to call Config (both seem to work)
-#RUN \
-#./autogen.sh && \
-#	./configure --with-showlistmodes --enable-ssl --enable-libcurl \
-#		--with-nick-history=2000 --with-permissions=0600 --enable-dynamic-linking && \
+RUN \
+./autogen.sh && \
+	./configure --with-showlistmodes --enable-ssl --enable-libcurl \
+		--with-nick-history=2000 --with-permissions=0600 --enable-dynamic-linking \
+		--disable-asan
+
 
 # one of the certificates fail to create if it doesn't receive any input
 # hence this line is necessary even if you run Config
