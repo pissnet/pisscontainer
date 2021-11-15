@@ -6,6 +6,9 @@ RUN zypper in -y -t pattern devel_basis devel_C_C++ network_admin console; \
 		pcre2-devel libcurl-devel argon2-devel c-ares-devel libcares2 mt; \
 	rm -rf /var/cache/zypp/packages
 
+RUN zypper in -y git curl vim less file find iputils patterns-base-console iproute wget; \
+	rm -rf /var/cache;
+
 RUN useradd pissnet;
 
 ENV WORKDIR=/home/pissnet/pissircd
@@ -16,16 +19,17 @@ ENV TZ=America/Sao_Paulo
 
 WORKDIR $HOME
 
-ADD pissircd pissircd
-
+#ADD pissircd pissircd
 ARG BRANCH
 
 RUN chown -R pissnet:users .; \
 	rm -rf unrealircd/*;
 
-WORKDIR $WORKDIR
-
 USER pissnet
+
+RUN git clone --single-branch --depth 1 https://github.com/pissnet/pissircd -b $BRANCH
+
+WORKDIR $WORKDIR
 
 RUN ./Config
 
@@ -48,12 +52,24 @@ RUN make -j4; \
 
 RUN make clean;
 
-USER root
+#WORKDIR $HOME
 
 WORKDIR $HOME/unrealircd
 
-EXPOSE 6667 6697 6900
+ADD --chown=pissnet:users conf conf
+ADD --chown=pissnet:users data data
+
+#USER root
+
+#CMD cp -a --reflink conf data unrealircd; \
+#	chown -R pissnet:pissnet unrealircd
 
 USER pissnet
+
+EXPOSE 6667 6697 6900
+
+ENV ASAN_OPTIONS="abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1:log_path=/home/pissnet/unrealircd/tmp/unrealircd_asan:detect_leaks=0"
+
+CMD bash -c "bin/unrealircd -F"
 
 #REM tbc
