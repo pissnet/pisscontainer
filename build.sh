@@ -54,6 +54,7 @@ SHORTREV=`echo "$REV" | dd bs=1 count=6`
 rm -rf tmp pissircd
 mkdir -p tmp
 unzip -qx pissircd.zip -d tmp
+#tar -xvf pissircd.tar.gz -C tmp
 
 mv tmp/* pissircd
 
