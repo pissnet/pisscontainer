@@ -17,6 +17,8 @@ COPY --chown=pissnet:users unrealircd /home/pissnet/unrealircd
 COPY --chown=pissnet:users conf /home/pissnet/unrealircd/conf
 COPY --chown=pissnet:users data /home/pissnet/unrealircd/data
 
+ENV TZ=America/Sao_Paulo
+
 USER pissnet
 
 LABEL name=pissnet
