@@ -19,6 +19,27 @@
 
 set -e
 
+i=1
+for arg in "$@"; do
+	if [ "$arg" == "--build" ]; then
+		BUILD=1;
+		shift $i;
+	elif [ "$arg" == "--run" ]; then
+		RUN=1;
+		shift $i;
+	elif [ "$arg" == "--all" ]; then
+		RUN=1;
+		BUILD=1;
+		shift $i;
+	fi
+	i=$(($i+1))
+done
+
+if [ -z "$RUN" ] && [ -z "$BUILD" ]; then
+	RUN=1;
+	BUILD=1;
+fi
+
 if [ "$#" -ge 2 ]; then
 	export REPO="$1"
 	shift
@@ -35,59 +56,41 @@ echo $REPO $BRANCH
 
 set -v
 
-mv tmp/* pissircd
+if [ -n "$BUILD" ]; then
+	mkdir -p unrealircd
+	mkdir -p data
+	mkdir -p conf
+	echo "Building unrealircd..."
+	podman build -f Containerfile_build_server \
+			--build-arg BRANCH="$BRANCH" \
+			-t opensuse/tumbleweed/pissnet-build:"$BRANCH" \
+			--label REV="$SHORTREV"
 
-mkdir -p unrealircd
-mkdir -p data
-mkdir -p conf
-echo "Building unrealircd..."
-podman build -f Containerfile_build_server \
-		--build-arg BRANCH="$BRANCH" \
-		-v "$PWD/unrealircd:/home/pissnet/unrealircd" \
-		-t opensuse/tumbleweed/pissnet-build:"$BRANCH" \
-		-t opensuse/tumbleweed/pissnet-build:"$SHORTREV" \
-		--label REV="$SHORTREV"
+	# echo "Building full_server..."
+	# podman build -f Containerfile_full_server \
+	# 		--build-arg BRANCH="$BRANCH" \
+	# 		-t opensuse/tumbleweed/pissnet-full:"$BRANCH" \
+	# 		--label REV="$SHORTREV"
 
-echo "Building full_server..."
-podman build -f Containerfile_full_server \
-		--build-arg BRANCH="$BRANCH" \
-		-t opensuse/tumbleweed/pissnet-full:"$BRANCH" \
-		-t opensuse/tumbleweed/pissnet-full:"$SHORTREV" \
-		--label REV="$SHORTREV"
+	# echo "Building slim_server..."
+	# podman build -f Containerfile_slim_server
+	# 		--build-arg BRANCH="$BRANCH" \
+	# 		-t opensuse/tumbleweed/pissnet-slim:"$BRANCH" \
+	#		--label REV="$SHORTREV"
+fi
 
-# echo "Building slim_server..."
-# podman build -f Containerfile_slim_server --build-arg BRANCH="$BRANCH" \
-# 		-t opensuse/tumbleweed/pissnet-slim:"$BRANCH" \
-# 		-t opensuse/tumbleweed/pissnet-slim:"$SHORTREV" \
-# 		--label REV="$SHORTREV"
-
-echo "Building unrealircd on alpine..."
-podman build -f Containerfile_alpine_build_server \
-		--build-arg BRANCH="$BRANCH" \
-		-v "$PWD/unrealircd:/home/pissnet/unrealircd" \
-		-t alpine/pissnet-build:"$BRANCH" \
-		-t alpine/pissnet-build:"$SHORTREV" \
-		--label REV="$SHORTREV"
-
-# echo "Building full_server on alpine..."
-# podman build -f Containerfile_alpine_full_server \
-# 		--build-arg BRANCH="$REPO" \
-# 		--build-arg BRANCH="$BRANCH" \
-# 		-t alpine/pissnet-full:"$BRANCH" \
-# 		--label REV="$SHORTREV"
-
-echo "Building slim_server on alpine..."
-podman build -f Containerfile_alpine_slim_server \
-		--build-arg BRANCH="$BRANCH" \
-		-t alpine/pissnet-slim:"$BRANCH" \
-		-t alpine/pissnet-slim:"$SHORTREV" \
-		--label REV="$SHORTREV" \
-
-echo "Running..."
-echo "^P ^Q for detaching"
-podman run -it --name="$repo_$branch" --user=pissnet \
-		-p6667:6667 -p6697:6697 -p6900:6900 \
-		--label REV="$SHORTREV" \
-		pissnet-full:"$BRANCH"
+if [ -n "$RUN" ]; then
+	echo "Running..."
+	echo "^P ^Q for detaching"
+	podman run -it --name="$repo_$branch" --user=pissnet \
+			--network cni-podman1 \
+			-p6667:6667 -p6697:6697 -p6900:6900 \
+			--label REV="$SHORTREV" \
+			pissnet-build:"$BRANCH"
+	#		-p [::]:6900:6900 -p [::]:6667:6667 -p [::]:6697:6697 \
+	# podman run -it --name="$repo_$branch" --user=pissnet \
+	# 		--network podman \
+	#  		pissnet-build:"$BRANCH"
+fi
 
 
