@@ -1,11 +1,7 @@
 
 FROM alpine:latest
-
-RUN apk add shadow build-base autoconf bash openssl-dev openssl
-# RUN zypper in -y -t pattern devel_basis devel_C_C++ network_admin console; \
-# 	zypper in -y python3 libasan6 libopenssl-devel libsodium-devel \
-# 		pcre2-devel libcurl-devel argon2-devel c-ares-devel libcares2 mt; \
-# 	rm -rf /var/cache/zypp/packages
+RUN apk add shadow build-base autoconf automake bash openssl-dev openssl curl-dev; \
+	rm -rf /var/cache;
 
 RUN useradd pissnet;
 
