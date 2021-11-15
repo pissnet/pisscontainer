@@ -9,7 +9,7 @@ RUN zypper in -y openssh-clients libsodium23 libpcre2-8-0 curl libargon2-1 \
 
 RUN useradd pissnet
 
-ADD pissircd pissircd
+ADD pissircd /home/pissnet/pissircd
 
 ARG BRANCH
 
