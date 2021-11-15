@@ -33,23 +33,7 @@ else
 fi
 echo $REPO $BRANCH
 
-if wget --version 1>/dev/null 2>&1; then
-	wget "https://codeload.github.com/$REPO/zip/refs/heads/$BRANCH" \
-		-O pissircd.zip
-elif curl --version 1>/dev/null 2>&1; then
-	curl "https://codeload.github.com/$REPO/zip/refs/heads/$BRANCH" \
-		-o pissircd.zip
-else
-	echo "Can't download pissnet. Install _something_!"
-	exit -1
-fi
-
-REV=`unzip -z pissircd.zip | tail -1`
-SHORTREV=`echo "$REV" | dd bs=1 count=6`
-
-rm -rf tmp pissircd
-mkdir -p tmp
-unzip -qx pissircd.zip -d tmp
+set -v
 
 mv tmp/* pissircd
 
