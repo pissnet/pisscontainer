@@ -1,0 +1,59 @@
+
+FROM alpine:latest
+
+RUN apk add shadow build-base autoconf bash openssl-dev openssl
+# RUN zypper in -y -t pattern devel_basis devel_C_C++ network_admin console; \
+# 	zypper in -y python3 libasan6 libopenssl-devel libsodium-devel \
+# 		pcre2-devel libcurl-devel argon2-devel c-ares-devel libcares2 mt; \
+# 	rm -rf /var/cache/zypp/packages
+
+RUN useradd pissnet;
+
+ENV WORKDIR=/home/pissnet/pissircd
+ENV HOME=/home/pissnet
+
+#VOLUME /home/pissnet/unrealircd
+
+WORKDIR $HOME
+
+ADD pissircd pissircd
+
+ARG BRANCH
+
+RUN chown -R pissnet:users .; \
+	rm -rf unrealircd/*;
+
+WORKDIR $WORKDIR
+
+USER pissnet
+
+RUN ./Config
+
+# if for some reason don't want to call Config (both seem to work)
+#RUN \
+#./autogen.sh && \
+#	./configure --with-showlistmodes --enable-ssl --enable-libcurl \
+#		--with-nick-history=2000 --with-permissions=0600 --enable-dynamic-linking && \
+
+# one of the certificates fail to create if it doesn't receive any input
+# hence this line is necessary even if you run Config
+
+RUN echo -e 'make pem\n\n\n\n\n\n' | bash -
+
+RUN mkdir -p $HOME/unrealircd/tmp $HOME/unrealircd/conf/tls; \
+	cp server.cert.pem server.key.pem server.req.pem $HOME/unrealircd/conf/tls
+
+RUN make -j4; \
+	make install;
+
+RUN make clean;
+
+USER root
+
+WORKDIR $HOME/unrealircd
+
+EXPOSE 6667 6697 6900
+
+USER pissnet
+
+#REM tbc
