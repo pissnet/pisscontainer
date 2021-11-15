@@ -73,8 +73,31 @@ podman build -f Containerfile_full_server \
 
 # echo "Building slim_server..."
 # podman build -f Containerfile_slim_server --build-arg BRANCH="$BRANCH" \
-#		-t opensuse/tumbleweed/pissnet-slim:"$BRANCH" \
-#		--label REV="$SHORTREV"
+# 		-t opensuse/tumbleweed/pissnet-slim:"$BRANCH" \
+# 		-t opensuse/tumbleweed/pissnet-slim:"$SHORTREV" \
+# 		--label REV="$SHORTREV"
+
+echo "Building unrealircd on alpine..."
+podman build -f Containerfile_alpine_build_server \
+		--build-arg BRANCH="$BRANCH" \
+		-v "$PWD/unrealircd:/home/pissnet/unrealircd" \
+		-t alpine/pissnet-build:"$BRANCH" \
+		-t alpine/pissnet-build:"$SHORTREV" \
+		--label REV="$SHORTREV"
+
+# echo "Building full_server on alpine..."
+# podman build -f Containerfile_alpine_full_server \
+# 		--build-arg BRANCH="$REPO" \
+# 		--build-arg BRANCH="$BRANCH" \
+# 		-t alpine/pissnet-full:"$BRANCH" \
+# 		--label REV="$SHORTREV"
+
+echo "Building slim_server on alpine..."
+podman build -f Containerfile_alpine_slim_server \
+		--build-arg BRANCH="$BRANCH" \
+		-t alpine/pissnet-slim:"$BRANCH" \
+		-t alpine/pissnet-slim:"$SHORTREV" \
+		--label REV="$SHORTREV" \
 
 echo "Running..."
 echo "^P ^Q for detaching"
