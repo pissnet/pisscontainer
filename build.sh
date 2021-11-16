@@ -28,8 +28,6 @@ for arg in "$@"; do
 		RUN=1;
 		shift $i;
 	elif [ "$arg" == "--all" ]; then
-		RUN=1;
-		BUILD=1;
 		ALPINE=1;
 		OPENSUSE=1;
 		shift $i;
