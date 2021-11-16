@@ -17,6 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+usage() {
+	echo "$0: --opensuse | --alpine | --all [ --build | --run ] [[REPOSITORY] BRANCH]"
+}
+
 set -e
 
 i=1
@@ -43,6 +47,7 @@ done
 
 if [ -z "$ALPINE" ] && [ -z "$OPENSUSE" ]; then
 	echo "Please choose a distro passing --opensuse, --alpine or --all"
+	usage
 	exit 1
 fi
 if [ -n "$ALPINE" ]; then
