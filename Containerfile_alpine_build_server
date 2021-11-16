@@ -3,6 +3,8 @@ FROM alpine:latest
 RUN apk add shadow build-base autoconf automake bash openssl-dev openssl curl-dev; \
 	rm -rf /var/cache;
 
+RUN apk add git curl vim less file find iputils iproute wget; \
+	rm -rf /var/cache;
 RUN useradd pissnet;
 
 ENV WORKDIR=/home/pissnet/pissircd
@@ -13,16 +15,16 @@ ENV TZ=America/Sao_Paulo
 
 WORKDIR $HOME
 
-ADD pissircd pissircd
-
 ARG BRANCH
 
 RUN chown -R pissnet:users .; \
 	rm -rf unrealircd/*;
 
-WORKDIR $WORKDIR
-
 USER pissnet
+
+RUN git clone --single-branch --depth 1 https://github.com/pissnet/pissircd -b $BRANCH
+
+WORKDIR $WORKDIR
 
 # RUN ./Config
 
@@ -47,12 +49,17 @@ RUN make -j4; \
 
 RUN make clean;
 
-USER root
-
 WORKDIR $HOME/unrealircd
+
+ADD --chown=pissnet:users conf conf
+ADD --chown=pissnet:users data data
+
+USER pissnet
 
 EXPOSE 6667 6697 6900
 
-USER pissnet
+ENV ASAN_OPTIONS="abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1:log_path=/home/pissnet/unrealircd/tmp/unrealircd_asan:detect_leaks=0"
+
+CMD bash -c "bin/unrealircd -F"
 
 #REM tbc
