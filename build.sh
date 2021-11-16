@@ -111,7 +111,6 @@ if [ -n "$RUN" ]; then
 	echo "Running..."
 	echo "^P ^Q for detaching"
 	podman run -it --name="$repo_$branch" --user=pissnet \
-			--network cni-podman1 \
 			-p6667:6667 -p6697:6697 -p6900:6900 \
 			--label REV="$SHORTREV" \
 			"$tag"
