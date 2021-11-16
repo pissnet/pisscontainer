@@ -1,0 +1,36 @@
+
+FROM alpine:latest
+RUN apk add shadow build-base autoconf automake bash openssl-dev openssl curl-dev; \
+	rm -rf /var/cache;
+
+RUN useradd pissnet
+
+ADD pissircd /home/pissnet/pissircd
+
+ARG BRANCH
+
+COPY --chown=pissnet:users unrealircd /home/pissnet/unrealircd
+COPY --chown=pissnet:users conf /home/pissnet/unrealircd/conf
+COPY --chown=pissnet:users data /home/pissnet/unrealircd/data
+
+ENV TZ=America/Sao_Paulo
+
+USER pissnet
+
+LABEL name=pissnet
+
+WORKDIR /home/pissnet/unrealircd
+
+EXPOSE 6667 6697 6900
+
+# CMD bash -c "/home/pissnet/unrealircd/unrealircd start; \
+# 		while true; do \
+# 			bash --login; \
+# 		done;"
+
+ENV ASAN_OPTIONS="abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1:log_path=/home/pissnet/unrealircd/tmp/unrealircd_asan:detect_leaks=0"
+
+CMD bash -c "bin/unrealircd -F"
+
+# podman run --name=pissnet --user=pissnet -it -p6667:6667 -p6697:6697 -p6900:6900 -p [::]:6900:6900 -p [::]:6667:6667 -p [::]:6697:6697
+
