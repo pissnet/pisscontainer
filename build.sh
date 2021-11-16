@@ -61,19 +61,19 @@ if [ -n "$BUILD" ]; then
 	mkdir -p data
 	mkdir -p conf
 	echo "Building unrealircd..."
-	podman build -f Containerfile_build_server \
+	podman build -f Containerfile_opensuse_build_server \
 			--build-arg BRANCH="$BRANCH" \
 			-t opensuse/tumbleweed/pissnet-build:"$BRANCH" \
 			--label REV="$SHORTREV"
 
 	# echo "Building full_server..."
-	# podman build -f Containerfile_full_server \
+	# podman build -f Containerfile_opensuse_full_server \
 	# 		--build-arg BRANCH="$BRANCH" \
 	# 		-t opensuse/tumbleweed/pissnet-full:"$BRANCH" \
 	# 		--label REV="$SHORTREV"
 
 	# echo "Building slim_server..."
-	# podman build -f Containerfile_slim_server
+	# podman build -f Containerfile_opensuse_slim_server
 	# 		--build-arg BRANCH="$BRANCH" \
 	# 		-t opensuse/tumbleweed/pissnet-slim:"$BRANCH" \
 	#		--label REV="$SHORTREV"
