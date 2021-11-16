@@ -30,10 +30,29 @@ for arg in "$@"; do
 	elif [ "$arg" == "--all" ]; then
 		RUN=1;
 		BUILD=1;
+		ALPINE=1;
+		OPENSUSE=1;
+		shift $i;
+	elif [ "$arg" == "--alpine" ]; then
+		ALPINE=1;
+		shift $i;
+	elif [ "$arg" == "--opensuse" ]; then
+		OPENSUSE=1;
 		shift $i;
 	fi
 	i=$(($i+1))
 done
+
+if [ -z "$ALPINE" ] && [ -z "$OPENSUSE" ]; then
+	echo "Please choose a distro passing --opensuse, --alpine or --all"
+	exit 1
+fi
+if [ -n "$ALPINE" ]; then
+	DISTROS=($DISTROS alpine)
+fi
+if [ -n "$OPENSUSE" ]; then
+	DISTROS=($DISTROS opensuse)
+fi
 
 if [ -z "$RUN" ] && [ -z "$BUILD" ]; then
 	RUN=1;
@@ -60,11 +79,15 @@ if [ -n "$BUILD" ]; then
 	mkdir -p unrealircd
 	mkdir -p data
 	mkdir -p conf
-	echo "Building unrealircd..."
-	podman build -f Containerfile_opensuse_build_server \
+	for d in "$DISTROS"; do
+		f="Containerfile_$d_build_server"
+		tag="$d/pissnet-build:${REPO}_${BRANCH}"
+		echo "Building $tag..."
+		podman build -f $f \
 			--build-arg BRANCH="$BRANCH" \
-			-t opensuse/tumbleweed/pissnet-build:"$BRANCH" \
+			-t "$tag": \
 			--label REV="$SHORTREV"
+	done;
 
 	# echo "Building full_server..."
 	# podman build -f Containerfile_opensuse_full_server \
