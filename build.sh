@@ -109,7 +109,8 @@ if [ -n "$RUN" ]; then
 			--network cni-podman1 \
 			-p6667:6667 -p6697:6697 -p6900:6900 \
 			--label REV="$SHORTREV" \
-			pissnet-build:"$BRANCH"
+			"$tag"
+			
 	#		-p [::]:6900:6900 -p [::]:6667:6667 -p [::]:6697:6697 \
 	# podman run -it --name="$repo_$branch" --user=pissnet \
 	# 		--network podman \
