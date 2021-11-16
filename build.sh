@@ -74,6 +74,7 @@ if [ "$#" -ge 1 ]; then
 else
 	export BRANCH=piss60
 fi
+REPO_=`echo $REPO | tr \/ _`
 echo $REPO $BRANCH
 
 if [ -n "$BUILD" ]; then
@@ -81,20 +82,20 @@ if [ -n "$BUILD" ]; then
 	mkdir -p data
 	mkdir -p conf
 	for d in "$DISTROS"; do
-		f="Containerfile_$d_build_server"
-		tag="$d/pissnet-build:${REPO}_${BRANCH}"
+		f="Containerfile_${d}_build_server"
+		tag="$d/pissnet-build:${REPO_}_${BRANCH}"
 		echo "Building $tag..."
-		podman build -f $f \
+		podman build -f "$f" \
 			--build-arg BRANCH="$BRANCH" \
-			-t "$tag": \
+			-t "$tag" \
 			--label REV="$SHORTREV"
 
 		f="Containerfile_$d_slim_server"
-		tag="$d/pissnet-slim:${REPO}_${BRANCH}"
+		tag="$d/pissnet-slim:${REPO_}_${BRANCH}"
 		echo "Building $tag..."
-		podman build -f $f
+		podman build -f "$f"
 			--build-arg BRANCH="$BRANCH" \
-			-t "$tag": \
+			-t "$tag" \
 			--label REV="$SHORTREV"
 	done;
 
