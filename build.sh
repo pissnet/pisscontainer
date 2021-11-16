@@ -64,7 +64,9 @@ if [ -n "$BUILD" ]; then
 	podman build -f Containerfile_build_server \
 			--build-arg BRANCH="$BRANCH" \
 			-t opensuse/tumbleweed/pissnet-build:"$BRANCH" \
+	                -v "$PWD/unrealircd:/home/pissnet/unrealircd_volume" \
 			--label REV="$SHORTREV"
+
 
 	# echo "Building full_server..."
 	# podman build -f Containerfile_full_server \
@@ -72,11 +74,11 @@ if [ -n "$BUILD" ]; then
 	# 		-t opensuse/tumbleweed/pissnet-full:"$BRANCH" \
 	# 		--label REV="$SHORTREV"
 
-	# echo "Building slim_server..."
-	# podman build -f Containerfile_slim_server
-	# 		--build-arg BRANCH="$BRANCH" \
-	# 		-t opensuse/tumbleweed/pissnet-slim:"$BRANCH" \
-	#		--label REV="$SHORTREV"
+	echo "Building slim_server..."
+	podman build -f Containerfile_slim_server
+			--build-arg BRANCH="$BRANCH" \
+			-t opensuse/tumbleweed/pissnet-slim:"$BRANCH" \
+			--label REV="$SHORTREV"
 fi
 
 if [ -n "$RUN" ]; then
