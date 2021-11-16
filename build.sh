@@ -76,8 +76,6 @@ else
 fi
 echo $REPO $BRANCH
 
-set -v
-
 if [ -n "$BUILD" ]; then
 	mkdir -p unrealircd
 	mkdir -p data
@@ -90,6 +88,14 @@ if [ -n "$BUILD" ]; then
 			--build-arg BRANCH="$BRANCH" \
 			-t "$tag": \
 			--label REV="$SHORTREV"
+
+		f="Containerfile_$d_slim_server"
+		tag="$d/pissnet-slim:${REPO}_${BRANCH}"
+		echo "Building $tag..."
+		podman build -f $f
+			--build-arg BRANCH="$BRANCH" \
+			-t "$tag": \
+			--label REV="$SHORTREV"
 	done;
 
 	# echo "Building full_server..."
@@ -98,11 +104,6 @@ if [ -n "$BUILD" ]; then
 	# 		-t opensuse/tumbleweed/pissnet-full:"$BRANCH" \
 	# 		--label REV="$SHORTREV"
 
-	# echo "Building slim_server..."
-	# podman build -f Containerfile_opensuse_slim_server
-	# 		--build-arg BRANCH="$BRANCH" \
-	# 		-t opensuse/tumbleweed/pissnet-slim:"$BRANCH" \
-	#		--label REV="$SHORTREV"
 fi
 
 if [ -n "$RUN" ]; then

@@ -52,19 +52,12 @@ RUN make -j4; \
 
 RUN make clean;
 
-#WORKDIR $HOME
+CMD cp -a --reflink conf data unrealircd_volume
 
 WORKDIR $HOME/unrealircd
 
 ADD --chown=pissnet:users conf conf
 ADD --chown=pissnet:users data data
-
-#USER root
-
-#CMD cp -a --reflink conf data unrealircd; \
-#	chown -R pissnet:pissnet unrealircd
-
-USER pissnet
 
 EXPOSE 6667 6697 6900
 
