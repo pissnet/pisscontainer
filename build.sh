@@ -90,13 +90,13 @@ if [ -n "$BUILD" ]; then
 			-t "$tag" \
 			--label REV="$SHORTREV"
 
-		f="Containerfile_$d_slim_server"
-		tag="$d/pissnet-slim:${REPO_}_${BRANCH}"
-		echo "Building $tag..."
-		podman build -f "$f"
-			--build-arg BRANCH="$BRANCH" \
-			-t "$tag" \
-			--label REV="$SHORTREV"
+		# f="Containerfile_${d}_slim_server"
+		# tag="$d/pissnet-slim:${REPO_}_${BRANCH}"
+		# echo "Building $tag..."
+		# podman build -f "$f" \
+		# 	--build-arg BRANCH="$BRANCH" \
+		# 	-t "$tag" \
+		# 	--label REV="$SHORTREV"
 	done;
 
 	# echo "Building full_server..."
