@@ -3,7 +3,7 @@ FROM alpine:latest
 RUN apk add shadow build-base autoconf automake bash openssl-dev openssl curl-dev; \
 	rm -rf /var/cache;
 
-RUN apk add git curl vim less file find iputils iproute wget; \
+RUN apk add git curl vim less file iputils wget; \
 	rm -rf /var/cache;
 RUN useradd pissnet;
 
