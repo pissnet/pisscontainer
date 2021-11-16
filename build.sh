@@ -114,7 +114,7 @@ if [ -n "$RUN" ]; then
 			-p6667:6667 -p6697:6697 -p6900:6900 \
 			--label REV="$SHORTREV" \
 			"$tag"
-			
+
 	#		-p [::]:6900:6900 -p [::]:6667:6667 -p [::]:6697:6697 \
 	# podman run -it --name="$repo_$branch" --user=pissnet \
 	# 		--network podman \
