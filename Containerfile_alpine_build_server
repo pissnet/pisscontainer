@@ -7,6 +7,9 @@ RUN apk add git curl vim less file iputils iproute2 wget; \
 	rm -rf /var/cache;
 RUN useradd pissnet;
 
+#RUN apk add xhost xauth openssh-server; \
+#	rm -rf /var/cache;
+
 ENV WORKDIR=/home/pissnet/pissircd
 ENV HOME=/home/pissnet
 ENV TZ=America/Sao_Paulo
