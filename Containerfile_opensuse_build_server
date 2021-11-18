@@ -57,8 +57,6 @@ RUN make -j4; \
 
 RUN make clean;
 
-CMD cp -a --reflink conf data unrealircd_volume
-
 WORKDIR $HOME/unrealircd
 
 ADD --chown=pissnet:users conf conf
