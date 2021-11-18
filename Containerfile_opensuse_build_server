@@ -28,8 +28,6 @@ ARG BRANCH
 RUN chown -R pissnet:users .; \
 	rm -rf unrealircd/*;
 
-CMD ssh-keygen -A
-
 USER pissnet
 
 RUN git clone --single-branch --depth 1 https://github.com/pissnet/pissircd -b $BRANCH
@@ -66,7 +64,11 @@ EXPOSE 22 6667 6697 6900
 
 ENV ASAN_OPTIONS="abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1:log_path=/home/pissnet/unrealircd/tmp/unrealircd_asan:detect_leaks=0"
 
-CMD bash -c "start_daemon bin/unrealircd -F; \
-	     start_daemon /usr/sbin/sshd;"
+USER root
+
+RUN ssh-keygen -A
+
+CMD bash -c "start_daemon /usr/sbin/sshd; \
+             su pissnet -c '/home/pissnet/unrealircd/bin/unrealircd -F;'"
 
 #REM tbc
