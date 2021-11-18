@@ -120,17 +120,12 @@ if [ -n "$RUN" ]; then
 	echo "Running..."
 	echo "^P ^Q for detaching"
 
-	echo podman run -it --name="${REPO_}_${BRANCH}" --user=pissnet \
-			-p6667:6667 -p6697:6697 -p6900:6900 \
+	echo podman run -it --name="${d}_${REPO_}_${BRANCH}" \
+			-p9122:22 -p6667:6667 -p6697:6697 -p6900:6900 \
 			"$tag"
-	podman run -it --name="${REPO_}_${BRANCH}" --user=pissnet \
-			-p22:22 -p6667:6667 -p6697:6697 -p6900:6900 \
+	podman run -it --name="${d}_${REPO_}_${BRANCH}" \
+			-p9122:22 -p6667:6667 -p6697:6697 -p6900:6900 \
 			"$tag"
-
-	#		-p [::]:6900:6900 -p [::]:6667:6667 -p [::]:6697:6697 \
-	# podman run -it --name="$repo_$branch" --user=pissnet \
-	# 		--network podman \
-	#  		pissnet-build:"$BRANCH"
 fi
 
 
