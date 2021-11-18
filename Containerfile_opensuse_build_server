@@ -9,6 +9,9 @@ RUN zypper in -y -t pattern devel_basis devel_C_C++ network_admin console; \
 RUN zypper in -y git curl vim less file find iputils patterns-base-console iproute wget; \
 	rm -rf /var/cache;
 
+RUN zypper in -y kdiff3 xhost xauth openssh-server sysvinit-tools git-gui gdb ctags gvim; \
+	rm -rf /var/cache;
+
 RUN useradd pissnet;
 
 ENV WORKDIR=/home/pissnet/pissircd
@@ -24,6 +27,8 @@ ARG BRANCH
 
 RUN chown -R pissnet:users .; \
 	rm -rf unrealircd/*;
+
+CMD ssh-keygen -A
 
 USER pissnet
 
@@ -59,10 +64,11 @@ WORKDIR $HOME/unrealircd
 ADD --chown=pissnet:users conf conf
 ADD --chown=pissnet:users data data
 
-EXPOSE 6667 6697 6900
+EXPOSE 22 6667 6697 6900
 
 ENV ASAN_OPTIONS="abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1:log_path=/home/pissnet/unrealircd/tmp/unrealircd_asan:detect_leaks=0"
 
-CMD bash -c "bin/unrealircd -F"
+CMD bash -c "start_daemon bin/unrealircd -F; \
+	     start_daemon /usr/sbin/sshd;"
 
 #REM tbc
