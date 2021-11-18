@@ -109,6 +109,11 @@ if [ -n "$BUILD" ]; then
 	# 		-t opensuse/tumbleweed/pissnet-full:"$BRANCH" \
 	# 		--label REV="$SHORTREV"
 
+else
+	# some tag for build
+	for d in "$DISTROS"; do
+		tag="$d/pissnet-build:${REPO_}_${BRANCH}"
+	done
 fi
 
 if [ -n "$RUN" ]; then
