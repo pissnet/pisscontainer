@@ -119,7 +119,7 @@ fi
 if [ -n "$RUN" ]; then
 	echo "Running..."
 	echo "^P ^Q for detaching"
-	podman run -it --name="$repo_$branch" --user=pissnet \
+	podman run -it --name="${REPO_}_${BRANCH}" --user=pissnet \
 			-p22:22 -p6667:6667 -p6697:6697 -p6900:6900 \
 			"$tag"
 
