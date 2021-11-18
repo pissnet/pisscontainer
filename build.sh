@@ -28,19 +28,24 @@ for arg in "$@"; do
 	if [ "$arg" == "--build" ]; then
 		BUILD=1;
 		shift $i;
+		i=$(($i-1))
 	elif [ "$arg" == "--run" ]; then
 		RUN=1;
 		shift $i;
+		i=$(($i-1))
 	elif [ "$arg" == "--all" ]; then
 		ALPINE=1;
 		OPENSUSE=1;
 		shift $i;
+		i=$(($i-1))
 	elif [ "$arg" == "--alpine" ]; then
 		ALPINE=1;
 		shift $i;
+		i=$(($i-1))
 	elif [ "$arg" == "--opensuse" ]; then
 		OPENSUSE=1;
 		shift $i;
+		i=$(($i-1))
 	fi
 	i=$(($i+1))
 done
