@@ -12,6 +12,9 @@ RUN zypper in -y git curl vim less file find iputils patterns-base-console iprou
 RUN zypper in -y kdiff3 xhost xauth openssh-server sysvinit-tools git-gui gdb ctags gvim; \
 	rm -rf /var/cache;
 
+RUN zypper in -y gitk liberation-fonts noto-sans-fonts; \
+	rm -rf /var/cache;
+
 RUN useradd pissnet;
 
 ENV WORKDIR=/home/pissnet/pissircd
