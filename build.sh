@@ -92,8 +92,7 @@ if [ -n "$BUILD" ]; then
 		echo "Building $tag..."
 		podman build -f "$f" \
 			--build-arg BRANCH="$BRANCH" \
-			-t "$tag" \
-			--label REV="$SHORTREV"
+			-t "$tag"
 
 		# f="Containerfile_${d}_slim_server"
 		# tag="$d/pissnet-slim:${REPO_}_${BRANCH}"
@@ -117,7 +116,6 @@ if [ -n "$RUN" ]; then
 	echo "^P ^Q for detaching"
 	podman run -it --name="$repo_$branch" --user=pissnet \
 			-p22:22 -p6667:6667 -p6697:6697 -p6900:6900 \
-			--label REV="$SHORTREV" \
 			"$tag"
 
 	#		-p [::]:6900:6900 -p [::]:6667:6667 -p [::]:6697:6697 \
