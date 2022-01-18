@@ -23,35 +23,55 @@ usage() {
 
 set -e
 
-i=1
-for arg in "$@"; do
-	if [ "$arg" == "--build" ]; then
-		BUILD=1;
-		shift $i;
-		i=$(($i-1))
-	elif [ "$arg" == "--run" ]; then
-		RUN=1;
-		shift $i;
-		i=$(($i-1))
-	elif [ "$arg" == "--all" ]; then
-		ALPINE=1;
-		OPENSUSE=1;
-		shift $i;
-		i=$(($i-1))
-	elif [ "$arg" == "--alpine" ]; then
-		ALPINE=1;
-		shift $i;
-		i=$(($i-1))
-	elif [ "$arg" == "--opensuse" ]; then
-		OPENSUSE=1;
-		shift $i;
-		i=$(($i-1))
-	elif [ "$arg" == "--server" ]; then
-		SERVER=1;
-		shift $i;
-		i=$(($i-1))
-	fi
-	i=$(($i+1))
+options=$(getopt -l "help,verbose,build,run,all,alpine,opensuse,server,shared-home,shared-irc,name:" -- "$@")
+
+while true
+do
+case $1 in
+--help)
+	usage
+	exit 0
+	;;
+--verbose)
+	export verbose=1
+	set -xv
+	;;
+--build)
+	echo 1
+	BUILD=1;
+	;;
+--run)
+	RUN=1;
+	;;
+--all)
+	ALPINE=1;
+	OPENSUSE=1;
+	;;
+--alpine)
+	ALPINE=1;
+	;;
+--opensuse)
+	OPENSUSE=1;
+	;;
+--server)
+	SERVER=1;
+	;;
+--shared-home)
+	SHARED_HOME=1;
+	;;
+--shared-ircd)
+	SHARED_IRCD=1;
+	;;
+--name)
+	shift
+	NAME="$1"
+	echo $NAME
+	;;
+--)
+    shift
+    break;;
+esac
+shift
 done
 
 if [ -z "$ALPINE" ] && [ -z "$OPENSUSE" ]; then
