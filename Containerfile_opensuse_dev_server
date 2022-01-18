@@ -1,0 +1,69 @@
+
+FROM p/opensuse/dev_ssh_x
+
+RUN zypper in -y libasan6 libopenssl-devel libsodium-devel \
+		pcre2-devel libcurl-devel argon2-devel c-ares-devel libcares2 mt; \
+	rm -rf /var/cache;
+
+
+ENV WORKDIR=/home/pissnet/pissircd
+ENV PISSHOME=/home/pissnet
+ENV TZ=America/Sao_Paulo
+
+WORKDIR $PISSHOME
+
+ARG BRANCH=piss60
+
+ARG REPO=https://gitea.pissnet.ltd/pissnet/pissircd
+
+RUN chown -R pissnet:users .; \
+	cd unrealircd; \
+	rm -rf bin  cache  doc  lib  modules  source  tmp  unrealircd
+
+USER pissnet
+
+ADD git_sync.sh .
+
+RUN ./git_sync.sh
+
+WORKDIR $WORKDIR
+
+RUN ./Config --with-permissions=0660
+
+# if for some reason don't want to call Config (both seem to work)
+#RUN \
+#./autogen.sh && \
+#	./configure --with-showlistmodes --enable-ssl --enable-libcurl \
+#		--with-nick-history=2000 --with-permissions=0600 --enable-dynamic-linking && \
+
+# one of the certificates fail to create if it doesn't receive any input
+# hence this line is necessary even if you run Config
+
+RUN echo -e 'make pem\n\n\n\n\n\n' | bash -
+
+RUN mkdir -p $PISSHOME/unrealircd/tmp $PISSHOME/unrealircd/conf/tls; \
+	cp server.cert.pem server.key.pem server.req.pem $PISSHOME/unrealircd/conf/tls
+
+RUN make -j4; \
+	make install;
+
+RUN make clean;
+
+WORKDIR $PISSHOME/unrealircd
+
+ADD --chown=pissnet:users conf conf
+ADD --chown=pissnet:users data data
+
+VOLUME /home/pissnet/pissircd
+VOLUME /home/pissnet/unrealircd/conf
+VOLUME /home/pissnet/unrealircd/data
+VOLUME /home/pissnet/unrealircd/logs
+VOLUME /home/pissnet/unrealircd
+
+EXPOSE 22 6667 6697 6900
+
+ENV ASAN_OPTIONS="abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1:log_path=/home/pissnet/unrealircd/tmp/unrealircd_asan:detect_leaks=0"
+
+USER root
+
+ADD 30-unrealircd.conf /etc/supervisord.d/

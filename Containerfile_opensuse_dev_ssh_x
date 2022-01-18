@@ -1,0 +1,9 @@
+
+FROM p/opensuse/dev_ssh
+
+RUN zypper in -y kdiff3 xhost xauth git-gui gvim gitk liberation-fonts \
+		noto-sans-fonts xorg-x11-Xvnc; \
+	rm -rf /var/cache;
+
+EXPOSE 22
+

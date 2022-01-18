@@ -1,0 +1,4 @@
+
+FROM p/opensuse/tiny_ssh
+
+RUN zypper install -y weechat;

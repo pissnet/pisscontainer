@@ -1,0 +1,23 @@
+
+FROM registry.opensuse.org/opensuse/tumbleweed:latest
+
+RUN echo "download.max_silent_tries = 30" >> /etc/zypp/zypp.conf
+
+# tiny ssh
+RUN zypper install -y patterns-base-console patterns-network-network_admin \
+	curl vim less file findutils iputils iproute2 wget \
+	supervisor openssh-server;
+
+RUN useradd -UK UMASK=002 pissnet;
+
+ENV TZ=America/Sao_Paulo
+
+WORKDIR $HOME
+
+EXPOSE 22 9001
+
+RUN ssh-keygen -A
+
+ADD 50-sshd.conf /etc/supervisord.d/
+
+CMD /usr/bin/supervisord -n

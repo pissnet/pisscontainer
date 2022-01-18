@@ -46,6 +46,10 @@ for arg in "$@"; do
 		OPENSUSE=1;
 		shift $i;
 		i=$(($i-1))
+	elif [ "$arg" == "--server" ]; then
+		SERVER=1;
+		shift $i;
+		i=$(($i-1))
 	fi
 	i=$(($i+1))
 done
@@ -56,10 +60,15 @@ if [ -z "$ALPINE" ] && [ -z "$OPENSUSE" ]; then
 	exit 1
 fi
 if [ -n "$ALPINE" ]; then
-	DISTROS=($DISTROS alpine)
+	IMAGES+=(alpine/build_server)
 fi
 if [ -n "$OPENSUSE" ]; then
-	DISTROS=($DISTROS opensuse)
+	if [ -z "$SERVER" ]; then
+		IMAGES+=(opensuse/tiny_ssh)
+		IMAGES+=(opensuse/dev_ssh)
+		IMAGES+=(opensuse/dev_ssh_x)
+	fi
+	IMAGES+=(opensuse/dev_server)
 fi
 
 if [ -z "$RUN" ] && [ -z "$BUILD" ]; then
@@ -83,49 +92,59 @@ REPO_=`echo $REPO | tr \/ _`
 echo $REPO $BRANCH
 
 if [ -n "$BUILD" ]; then
+	# paths used through ADD Containerfile commands
 	mkdir -p unrealircd
 	mkdir -p data
 	mkdir -p conf
-	for d in "$DISTROS"; do
-		f="Containerfile_${d}_build_server"
-		tag="$d/pissnet-build:${REPO_}_${BRANCH}"
+	for i in "${IMAGES[@]}"; do
+		i_=`echo $i | tr \/ _`
+		f="Containerfile_${i_}"
+		tag="p/$i:${REPO_}_${BRANCH}"
 		echo "Building $tag..."
-		podman build -f "$f" \
-			--build-arg BRANCH="$BRANCH" \
-			-t "$tag"
-
-		# f="Containerfile_${d}_slim_server"
-		# tag="$d/pissnet-slim:${REPO_}_${BRANCH}"
-		# echo "Building $tag..."
-		# podman build -f "$f" \
-		# 	--build-arg BRANCH="$BRANCH" \
-		# 	-t "$tag" \
-		# 	--label REV="$SHORTREV"
+		if [ "$i" = "opensuse/dev_server" ]; then
+			mkdir -p /var/storage/piss/pissircd
+			mkdir -p /var/storage/piss/unrealircd
+			mkdir -p /var/storage/piss/conf
+			mkdir -p /var/storage/piss/data
+			mkdir -p /var/storage/piss/logs
+			podman build -f "$f" \
+				-t "$tag" \
+				-v /var/storage/piss/pissircd:/home/pissnet/pissircd:z \
+				-v /var/storage/piss/conf:/home/pissnet/unrealircd/conf:z \
+				-v /var/storage/piss/data:/home/pissnet/unrealircd/data:z \
+				-v /var/storage/piss/logs:/home/pissnet/unrealircd/logs:z \
+				-v /var/storage/piss/unrealircd:/home/pissnet/unrealircd:z \
+				--build-arg BRANCH="$BRANCH"
+			chown -R 101000:101000 /var/storage/piss/
+		elif [ "$i" = "alpine/build_server" ]; then
+			podman build -f "$f" \
+				--build-arg BRANCH="$BRANCH" \
+				-t "$tag"
+		else
+			podman build -f "$f" \
+				-t "$tag"
+		fi
 	done;
-
-	# echo "Building full_server..."
-	# podman build -f Containerfile_opensuse_full_server \
-	# 		--build-arg BRANCH="$BRANCH" \
-	# 		-t opensuse/tumbleweed/pissnet-full:"$BRANCH" \
-	# 		--label REV="$SHORTREV"
-
 else
 	# some tag for build
-	for d in "$DISTROS"; do
-		tag="$d/pissnet-build:${REPO_}_${BRANCH}"
-	done
+	i="${IMAGES[-1]}"
+	i_=`echo $i | tr \/ _`
+	tag="p/$i:${REPO_}_${BRANCH}"
 fi
 
 if [ -n "$RUN" ]; then
 	echo "Running..."
 	echo "^P ^Q for detaching"
-
-	echo podman run -it --name="${d}_${REPO_}_${BRANCH}" \
-			-p9122:22 -p6667:6667 -p6697:6697 -p6900:6900 \
-			"$tag"
-	podman run -it --name="${d}_${REPO_}_${BRANCH}" \
-			-p9122:22 -p6667:6667 -p6697:6697 -p6900:6900 \
+	podman run -it --name="${i_}_${REPO_}_${BRANCH}" \
+			--userns=auto \
+			--network podman1 \
+			-p[2804:14d:5c57:8011::9155:f411]:22:22 -p[2804:14d:5c57:8011::9155:f411]:6667:6667 \
+			-p[2804:14d:5c57:8011::9155:f411]:6697:6697 -p[2804:14d:5c57:8011::9155:f411]:6900:6900 \
+			-p0.0.0.0:9155:22 -p0.0.0.0:6667:6667 -p0.0.0.0:6697:6697 -p0.0.0.0:6900:6900 \
+			-v /var/storage/piss/pissircd:/home/pissnet/pissircd:z \
+			-v /var/storage/piss/conf:/home/pissnet/unrealircd/conf:z \
+			-v /var/storage/piss/data:/home/pissnet/unrealircd/data:z \
+			-v /var/storage/piss/logs:/home/pissnet/unrealircd/logs:z \
+			-v /var/storage/piss/unrealircd:/home/pissnet/unrealircd:z \
 			"$tag"
 fi
-
-
