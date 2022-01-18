@@ -80,6 +80,9 @@ if [ -z "$ALPINE" ] && [ -z "$OPENSUSE" ]; then
 	exit 1
 fi
 if [ -n "$ALPINE" ]; then
+	if [ -z "$SERVER" ]; then
+		IMAGES+=(alpine/tiny_ssh)
+	fi
 	IMAGES+=(alpine/build_server)
 fi
 if [ -n "$OPENSUSE" ]; then

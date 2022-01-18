@@ -3,7 +3,7 @@ FROM alpine:latest
 
 # tiny ssh
 RUN apk add shadow bash curl vim less file findutils iputils iproute2 wget \
-	openssh-server;
+	openssh-server supervisor;
 
 RUN useradd -U pissnet;
 
@@ -17,7 +17,6 @@ EXPOSE 22
 
 RUN ssh-keygen -A
 
-ADD init.sh /usr/local/sbin/init.sh
+ADD 50-sshd.conf /etc/supervisord.d/
 
-CMD /usr/local/sbin/init.sh
-
+CMD /usr/bin/supervisord -n
