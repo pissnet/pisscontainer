@@ -18,7 +18,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 usage() {
-	echo "$0: --opensuse | --alpine | --all [ --build | --run ] [[REPOSITORY] BRANCH]"
+	if [ -z $DONT_PRINT_USAGE ]; then
+		echo "$0: --opensuse | --alpine | --all [ --build | --run ] [[REPOSITORY] BRANCH]"
+	else
+		export DO_PRINT_USAGE=1
+	fi
 }
 
 set -e
