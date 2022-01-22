@@ -19,7 +19,9 @@
 
 usage() {
 	if [ -z $DONT_PRINT_USAGE ]; then
-		echo "$0: --opensuse | --alpine | --all [ --build | --run ] [[REPOSITORY] BRANCH]"
+		echo "$0: --opensuse | --alpine | --all [ --build | --run ] [ --verbose ] [ --server ] [ --mount-home ]"
+		echo "[ --mount-ircd ] [ --name IMAGENAME ] [ --run-args RUNARGS ] [ --pid-file PIDFILEPATH ]"
+		echo "[[REPOSITORY] BRANCH]"
 	else
 		export DO_PRINT_USAGE=1
 	fi
