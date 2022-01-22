@@ -23,7 +23,7 @@ usage() {
 
 set -e
 
-options=$(getopt -o + -l "help,verbose,build,run,all,alpine,opensuse,server,mount-home,mount-ircd,name:,run-args:" -- "$@")
+options=$(getopt -o + -l "help,verbose,build,run,all,alpine,opensuse,server,mount-home,mount-ircd,name:,run-args:,pid-file:" -- "$@")
 
 eval set -- "$options"
 
@@ -70,6 +70,10 @@ case $1 in
 --run-args)
 	shift
 	RUN_ARGS="$1"
+	;;
+--pid-file)
+	shift
+	PID_FILE="$1"
 	;;
 --)
 	shift
@@ -187,4 +191,9 @@ if [ -n "$RUN" ]; then
 			$VOLUMES \
 			$RUN_ARGS \
 			"$tag"
+
+	if [ -n "$PID_FILE" ]; then
+		sed -ie "s|^.*PIDFile.*|PIDFile=`podman generate systemd $NAME | grep PIDFile`|" $PID_FILE
+		systemctl daemon-reload
+	fi
 fi
