@@ -23,7 +23,9 @@ usage() {
 
 set -e
 
-options=$(getopt -l "help,verbose,build,run,all,alpine,opensuse,server,shared-home,shared-irc,name:" -- "$@")
+options=$(getopt -o + -l "help,verbose,build,run,all,alpine,opensuse,server,mount-home,mount-ircd,name:,run-args:" -- "$@")
+
+eval set -- "$options"
 
 while true
 do
@@ -37,7 +39,6 @@ case $1 in
 	set -xv
 	;;
 --build)
-	echo 1
 	BUILD=1;
 	;;
 --run)
@@ -56,20 +57,24 @@ case $1 in
 --server)
 	SERVER=1;
 	;;
---shared-home)
-	SHARED_HOME=1;
+--mount-home)
+	MOUNT_HOME=1;
 	;;
---shared-ircd)
-	SHARED_IRCD=1;
+--mount-ircd)
+	MOUNT_IRCD=1;
 	;;
 --name)
 	shift
 	NAME="$1"
-	echo $NAME
+	;;
+--run-args)
+	shift
+	RUN_ARGS="$1"
 	;;
 --)
-    shift
-    break;;
+	shift
+	ARGS="$@"
+	break;;
 esac
 shift
 done
@@ -94,6 +99,22 @@ if [ -n "$OPENSUSE" ]; then
 	IMAGES+=(opensuse/dev_server)
 fi
 
+if [ -n "$MOUNT_HOME" ]; then
+	mkdir -p /var/home
+	VOLUMES="$VOLUMES -v /var/home:/home:z"
+fi
+if [ -n "$MOUNT_IRCD" ]; then
+	mkdir -p /var/storage/piss/pissircd
+	mkdir -p /var/storage/piss/unrealircd
+	chown -R 101000:101000 /var/storage/piss
+	VOLUMES="$VOLUMES \
+	-v /var/storage/piss/pissircd:/home/pissnet/pissircd:z \
+	-v /var/storage/piss/unrealircd:/home/pissnet/unrealircd:z \
+	-v /var/storage/piss/conf:/home/pissnet/unrealircd/conf:z \
+	-v /var/storage/piss/data:/home/pissnet/unrealircd/data:z \
+	-v /var/storage/piss/logs:/home/pissnet/unrealircd/logs:z"
+fi
+
 if [ -z "$RUN" ] && [ -z "$BUILD" ]; then
 	RUN=1;
 	BUILD=1;
@@ -112,7 +133,7 @@ else
 	export BRANCH=piss60
 fi
 REPO_=`echo $REPO | tr \/ _`
-echo $REPO $BRANCH
+echo REPO:$REPO\; BRANCH:$BRANCH
 
 if [ -n "$BUILD" ]; then
 	# paths used through ADD Containerfile commands
@@ -125,23 +146,14 @@ if [ -n "$BUILD" ]; then
 		tag="p/$i:${REPO_}_${BRANCH}"
 		echo "Building $tag..."
 		if [ "$i" = "opensuse/dev_server" ]; then
-			mkdir -p /var/storage/piss/pissircd
-			mkdir -p /var/storage/piss/unrealircd
-			mkdir -p /var/storage/piss/conf
-			mkdir -p /var/storage/piss/data
-			mkdir -p /var/storage/piss/logs
 			podman build -f "$f" \
 				-t "$tag" \
-				-v /var/storage/piss/pissircd:/home/pissnet/pissircd:z \
-				-v /var/storage/piss/conf:/home/pissnet/unrealircd/conf:z \
-				-v /var/storage/piss/data:/home/pissnet/unrealircd/data:z \
-				-v /var/storage/piss/logs:/home/pissnet/unrealircd/logs:z \
-				-v /var/storage/piss/unrealircd:/home/pissnet/unrealircd:z \
+				$VOLUMES \
 				--build-arg BRANCH="$BRANCH"
-			chown -R 101000:101000 /var/storage/piss/
 		elif [ "$i" = "alpine/build_server" ]; then
 			podman build -f "$f" \
 				--build-arg BRANCH="$BRANCH" \
+				$VOLUMES \
 				-t "$tag"
 		else
 			podman build -f "$f" \
@@ -155,19 +167,24 @@ else
 	tag="p/$i:${REPO_}_${BRANCH}"
 fi
 
+if [ -z "$NAME" ]; then
+	NAME="${i_}_${REPO_}_${BRANCH}"
+fi
+
 if [ -n "$RUN" ]; then
 	echo "Running..."
 	echo "^P ^Q for detaching"
-	podman run -it --name="${i_}_${REPO_}_${BRANCH}" \
+
+	echo podman run -dt --name="$NAME" \
 			--userns=auto \
 			--network podman1 \
-			-p[2804:14d:5c57:8011::9155:f411]:22:22 -p[2804:14d:5c57:8011::9155:f411]:6667:6667 \
-			-p[2804:14d:5c57:8011::9155:f411]:6697:6697 -p[2804:14d:5c57:8011::9155:f411]:6900:6900 \
-			-p0.0.0.0:9155:22 -p0.0.0.0:6667:6667 -p0.0.0.0:6697:6697 -p0.0.0.0:6900:6900 \
-			-v /var/storage/piss/pissircd:/home/pissnet/pissircd:z \
-			-v /var/storage/piss/conf:/home/pissnet/unrealircd/conf:z \
-			-v /var/storage/piss/data:/home/pissnet/unrealircd/data:z \
-			-v /var/storage/piss/logs:/home/pissnet/unrealircd/logs:z \
-			-v /var/storage/piss/unrealircd:/home/pissnet/unrealircd:z \
+			$VOLUMES \
+			$RUN_ARGS \
+			"$tag"
+	podman run -dt --name="$NAME" \
+			--userns=auto \
+			--network podman1 \
+			$VOLUMES \
+			$RUN_ARGS \
 			"$tag"
 fi
