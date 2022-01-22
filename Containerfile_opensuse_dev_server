@@ -38,8 +38,9 @@ RUN ./Config --with-permissions=0660
 
 # one of the certificates fail to create if it doesn't receive any input
 # hence this line is necessary even if you run Config
+# RUN echo -e 'make pem\n\n\n\n\n\n' | bash -
 
-RUN echo -e 'make pem\n\n\n\n\n\n' | bash -
+
 
 RUN mkdir -p $PISSHOME/unrealircd/tmp $PISSHOME/unrealircd/conf/tls; \
 	cp server.cert.pem server.key.pem server.req.pem $PISSHOME/unrealircd/conf/tls
