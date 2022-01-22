@@ -19,7 +19,7 @@
 
 usage() {
 	if [ -z $DONT_PRINT_USAGE ]; then
-		echo "$0: --opensuse | --alpine | --all [ --build | --run ] [ --verbose ] [ --server ] [ --mount-home ]"
+		echo "$0: --opensuse | --alpine | --all [ --build | --run ] [ --verbose ] [ --only-server ] [ --mount-home ]"
 		echo "[ --mount-ircd ] [ --name IMAGENAME ] [ --run-args RUNARGS ] [ --pid-file PIDFILEPATH ]"
 		echo "[[REPOSITORY] BRANCH]"
 	else
@@ -29,7 +29,7 @@ usage() {
 
 set -e
 
-options=$(getopt -o + -l "help,verbose,build,run,all,alpine,opensuse,server,mount-home,mount-ircd,name:,run-args:,pid-file:" -- "$@")
+options=$(getopt -o + -l "help,verbose,build,run,all,alpine,opensuse,only-server,mount-home,mount-ircd,name:,run-args:,pid-file:" -- "$@")
 
 eval set -- "$options"
 
@@ -60,8 +60,8 @@ case $1 in
 --opensuse)
 	OPENSUSE=1;
 	;;
---server)
-	SERVER=1;
+--only-server)
+	ONLY_SERVER=1;
 	;;
 --mount-home)
 	MOUNT_HOME=1;
@@ -95,13 +95,13 @@ if [ -z "$ALPINE" ] && [ -z "$OPENSUSE" ]; then
 	exit 1
 fi
 if [ -n "$ALPINE" ]; then
-	if [ -z "$SERVER" ]; then
+	if [ -z "$ONLY_SERVER" ]; then
 		IMAGES+=(alpine/tiny_ssh)
 	fi
 	IMAGES+=(alpine/build_server)
 fi
 if [ -n "$OPENSUSE" ]; then
-	if [ -z "$SERVER" ]; then
+	if [ -z "$ONLY_SERVER" ]; then
 		IMAGES+=(opensuse/tiny_ssh)
 		IMAGES+=(opensuse/dev_ssh)
 		IMAGES+=(opensuse/dev_ssh_x)

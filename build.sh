@@ -18,7 +18,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 usage() {
-	echo "$0: --opensuse | --alpine | --all [ --verbose ] [ --server ] [ --mount-home ]"
+	echo "$0: --opensuse | --alpine | --all [ --verbose ] [ --only-server ] [ --mount-home ]"
 	echo "[ --mount-ircd ] [ --name IMAGENAME ]"
 	echo "[[REPOSITORY] BRANCH]"
 }
