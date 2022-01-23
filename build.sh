@@ -27,7 +27,7 @@ export DONT_PRINT_USAGE=1
 
 SRC_DIR="`dirname -- "${BASH_SOURCE[0]}"`"
 
-"$SRC_DIR/containertool.sh" --build $@
+"$SRC_DIR/containertool.sh" --build "$@"
 RET=$?
 
 if [ -n $DO_PRINT_USAGE -ne ]; then
