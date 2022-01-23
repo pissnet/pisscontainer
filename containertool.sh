@@ -200,13 +200,11 @@ if [ -n "$RUN" ]; then
 		echo "Running $NAME..."
 
 		echo podman run -dt --name="$NAME" \
-				--userns=auto \
 				--network podman1 \
 				$VOLUMES \
 				$RUN_ARGS \
 				"$tag"
 		podman run -dt --name="$NAME" \
-				--userns=auto \
 				--network podman1 \
 				$VOLUMES \
 				$RUN_ARGS \
