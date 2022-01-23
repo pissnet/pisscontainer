@@ -96,13 +96,13 @@ if [ -z "$ALPINE" ] && [ -z "$OPENSUSE" ]; then
 	exit 1
 fi
 
-if [ -z "$ALL" -a -z "$NAME" ]; then
+if [ -n "$ALL" -a -n "$NAME" ]; then
 	echo "error: using --name and --all at the same time is not currently supported"
 	usage
 	exit 1
 fi
 
-if [ -z "$ALL" -a -z "$PID_FILE" ]; then
+if [ -n "$ALL" -a -n "$PID_FILE" ]; then
 	echo "error: using --pid-file and --all at the same time is not currently supported"
 	usage
 	exit 1
