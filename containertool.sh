@@ -158,10 +158,10 @@ if [ "$#" -ge 1 ]; then
 else
 	export BRANCH=piss60
 fi
-REPO_=`echo $REPO | tr \/ _`
-echo REPO:$REPO\; BRANCH:$BRANCH
 
 if [ -n "$BUILD" ]; then
+	REPO_=`echo $REPO | tr \/ _`
+	echo REPO:$REPO\; BRANCH:$BRANCH
 	# paths used through ADD Containerfile commands
 	mkdir -p unrealircd
 	mkdir -p data
