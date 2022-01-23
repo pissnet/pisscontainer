@@ -31,6 +31,11 @@ set -e
 
 options=$(getopt -o + -l "help,verbose,build,run,all,alpine,opensuse,only-server,mount-home,mount-ircd,name:,run-args:,pid-file:" -- "$@")
 
+# With this you can set persistent values for variables such as RUN_ARGS and VOLUMES
+if [ -f $HOME/.config/containertoolrc ]; then
+	. $HOME/.config/containertoolrc 2>/dev/null
+fi
+
 eval set -- "$options"
 
 while true
@@ -76,7 +81,7 @@ case $1 in
 	;;
 --run-args)
 	shift
-	RUN_ARGS="$1"
+	RUN_ARGS="$RUN_ARGS $1"
 	;;
 --pid-file)
 	shift
