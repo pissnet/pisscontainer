@@ -51,6 +51,7 @@ case $1 in
 	RUN=1;
 	;;
 --all)
+	ALL=1
 	ALPINE=1;
 	OPENSUSE=1;
 	;;
@@ -94,11 +95,25 @@ if [ -z "$ALPINE" ] && [ -z "$OPENSUSE" ]; then
 	usage
 	exit 1
 fi
+
+if [ -z "$ALL" -a -z "$NAME" ]; then
+	echo "error: using --name and --all at the same time is not currently supported"
+	usage
+	exit 1
+fi
+
+if [ -z "$ALL" -a -z "$PID_FILE" ]; then
+	echo "error: using --pid-file and --all at the same time is not currently supported"
+	usage
+	exit 1
+fi
+
 if [ -n "$ALPINE" ]; then
 	if [ -z "$ONLY_SERVER" ]; then
 		IMAGES+=(alpine/tiny_ssh)
 	fi
 	IMAGES+=(alpine/build_server)
+	RUN_IMAGES+=(alpine/build_server)
 fi
 if [ -n "$OPENSUSE" ]; then
 	if [ -z "$ONLY_SERVER" ]; then
@@ -107,6 +122,7 @@ if [ -n "$OPENSUSE" ]; then
 		IMAGES+=(opensuse/dev_ssh_x)
 	fi
 	IMAGES+=(opensuse/dev_server)
+	RUN_IMAGES+=(opensuse/dev_server)
 fi
 
 if [ -n "$MOUNT_HOME" ]; then
@@ -171,34 +187,43 @@ if [ -n "$BUILD" ]; then
 		fi
 	done;
 else
-	# some tag for build
-	i="${IMAGES[-1]}"
-	i_=`echo $i | tr \/ _`
-	tag="p/$i:${REPO_}_${BRANCH}"
-fi
-
-if [ -z "$NAME" ]; then
-	NAME="${i_}_${REPO_}_${BRANCH}"
 fi
 
 if [ -n "$RUN" ]; then
-	echo "Running..."
-	echo "^P ^Q for detaching"
+	for i in "${RUN_IMAGES[@]}"; do
+		i_=`echo $i | tr \/ _`
+		tag="p/$i:${REPO_}_${BRANCH}"
+		# prevents NAME from being used two times
+		if [ "${#RUN_IMAGES[@]}" -ne 1 -o \
+		     -z "$NAME" ]; then
+			NAME="${i_}_${REPO_}_${BRANCH}"
+		fi
+		echo "Running $NAME..."
 
-	echo podman run -dt --name="$NAME" \
-			--userns=auto \
-			--network podman1 \
-			$VOLUMES \
-			$RUN_ARGS \
-			"$tag"
-	podman run -dt --name="$NAME" \
-			--userns=auto \
-			--network podman1 \
-			$VOLUMES \
-			$RUN_ARGS \
-			"$tag"
+		echo podman run -dt --name="$NAME" \
+				--userns=auto \
+				--network podman1 \
+				$VOLUMES \
+				$RUN_ARGS \
+				"$tag"
+		podman run -dt --name="$NAME" \
+				--userns=auto \
+				--network podman1 \
+				$VOLUMES \
+				$RUN_ARGS \
+				"$tag"
+		echo "podman run exits with success."
+		sleep 1
+		if podman ps | grep -q "$NAME"; then
+			echo "$NAME is running."
+		else
+			echo "$NAME is not running anymore or failed to start."
+		fi
+	done
 
-	if [ -n "$PID_FILE" ]; then
+	# only makes sense for a single image for now
+	if [ "${#RUN_IMAGES[@]}" -eq 1 -a \
+	     -n "$PID_FILE" ]; then
 		sed -ie "s|^.*PIDFile.*|PIDFile=`podman generate systemd $NAME | grep PIDFile`|" $PID_FILE
 		systemctl daemon-reload
 	fi
