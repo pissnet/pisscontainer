@@ -186,7 +186,6 @@ if [ -n "$BUILD" ]; then
 				-t "$tag"
 		fi
 	done;
-else
 fi
 
 if [ -n "$RUN" ]; then
