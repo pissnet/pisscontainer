@@ -19,7 +19,7 @@
 
 usage() {
 	echo "$0: --opensuse | --alpine | --all [ --verbose ] [ --mount-home ]"
-	echo "[ --mount-ircd ] [ --name IMAGENAME ] [ --run-args RUNARGS ] [ --pid-file PIDFILEPATH ]"
+	echo "[ --mount-ircd ] [ --name CONTAINERNAME ] [ --run-args RUNARGS ] [ --pid-file PIDFILEPATH ]"
 }
 
 export DONT_PRINT_USAGE=1

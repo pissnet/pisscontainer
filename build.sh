@@ -19,7 +19,7 @@
 
 usage() {
 	echo "$0: --opensuse | --alpine | --all [ --verbose ] [ --only-server ] [ --mount-home ]"
-	echo "[ --mount-ircd ] [ --name IMAGENAME ]"
+	echo "[ --mount-ircd ]"
 	echo "[[REPOSITORY] BRANCH]"
 }
 
