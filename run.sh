@@ -29,7 +29,7 @@ SRC_DIR="`dirname -- "${BASH_SOURCE[0]}"`"
 "$SRC_DIR/containertool.sh" --run "$@"
 RET=$?
 
-if [ -n $DO_PRINT_USAGE -ne ]; then
+if [ -n $DO_PRINT_USAGE ]; then
 	usage
 fi
 exit $RET
