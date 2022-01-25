@@ -177,16 +177,26 @@ if [ -n "$BUILD" ]; then
 		tag="p/$i:${REPO_}_${BRANCH}"
 		echo "Building $tag..."
 		if [ "$i" = "opensuse/dev_server" ]; then
+			echo podman build -f "$f" \
+				-t "$tag" \
+				$VOLUMES \
+				--build-arg BRANCH="$BRANCH"
 			podman build -f "$f" \
 				-t "$tag" \
 				$VOLUMES \
 				--build-arg BRANCH="$BRANCH"
 		elif [ "$i" = "alpine/build_server" ]; then
+			echo podman build -f "$f" \
+				--build-arg BRANCH="$BRANCH" \
+				$VOLUMES \
+				-t "$tag"
 			podman build -f "$f" \
 				--build-arg BRANCH="$BRANCH" \
 				$VOLUMES \
 				-t "$tag"
 		else
+			echo podman build -f "$f" \
+				-t "$tag"
 			podman build -f "$f" \
 				-t "$tag"
 		fi
