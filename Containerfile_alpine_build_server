@@ -4,24 +4,28 @@ RUN apk add build-base autoconf automake openssl-dev openssl curl-dev \
 		supervisor git; \
 	rm -rf /var/cache;
 
-ENV WORKDIR=/home/pissnet/pissircd
-ENV HOME=/home/pissnet
+ENV USERHOME=/home/pissnet
 ENV TZ=America/Sao_Paulo
 
-#VOLUME /home/pissnet/unrealircd
+ARG BRANCH=piss60
+ARG REPO=https://gitea.pissnet.ltd/pissnet/pissircd
 
-WORKDIR $HOME
-
-ARG BRANCH
+WORKDIR $USERHOME
 
 RUN chown -R pissnet:users .; \
-	rm -rf unrealircd/*;
+	cd unrealircd && \
+	rm -rf bin  cache  doc  lib  modules  source  tmp  unrealircd || \
+		true;
 
 USER pissnet
 
-RUN git clone --single-branch --depth 1 https://github.com/pissnet/pissircd -b $BRANCH
+COPY git_sync.sh /usr/local/bin
 
-WORKDIR $WORKDIR
+# Everything from here and downwards is not easy to setup with volumes. Oops.
+
+RUN /usr/local/bin/git_sync.sh
+
+WORKDIR $USERHOME/pissircd
 
 # RUN ./Config
 
@@ -38,7 +42,7 @@ RUN \
 
 RUN echo -e 'make pem\n\n\n\n\n\n' | bash -
 
-RUN mkdir -p $HOME/unrealircd/tmp $HOME/unrealircd/conf/tls; \
+RUN mkdir -p $USERHOME/unrealircd/tmp $USERHOME/unrealircd/conf/tls; \
 	cp server.cert.pem server.key.pem server.req.pem $HOME/unrealircd/conf/tls
 
 RUN make -j4; \
@@ -46,17 +50,17 @@ RUN make -j4; \
 
 RUN make clean;
 
-WORKDIR $HOME/unrealircd
+WORKDIR $USERHOME/unrealircd
 
-ADD --chown=pissnet:users conf conf
-ADD --chown=pissnet:users data data
-
-USER pissnet
+ADD --chown=pissnet:pissnet conf conf
+ADD --chown=pissnet:pissnet data data
 
 EXPOSE 22 6667 6697 6900
 
 ENV ASAN_OPTIONS="abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1:log_path=/home/pissnet/unrealircd/tmp/unrealircd_asan:detect_leaks=0"
 
 ADD 30-unrealircd.conf /etc/supervisord.d/
+
+USER root
 
 #REM tbc

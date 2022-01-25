@@ -3,12 +3,11 @@ FROM alpine:latest
 
 # tiny ssh
 RUN apk add shadow bash curl vim less file findutils iputils iproute2 wget \
-	openssh-server supervisor;
+	openssh-server supervisor; \
+	rm -rf /var/cache;
 
-RUN useradd -U pissnet;
+RUN useradd -UK UMASK=002 pissnet;
 
-# ENV WORKDIR=/home/pissnet/pissircd
-# ENV HOME=/home/pissnet
 ENV TZ=America/Sao_Paulo
 
 WORKDIR $HOME
@@ -17,6 +16,9 @@ EXPOSE 22
 
 RUN ssh-keygen -A
 
+ADD supervisord.conf /etc/
 ADD 50-sshd.conf /etc/supervisord.d/
+
+RUN mkdir -p /var/log/supervisord/
 
 CMD /usr/bin/supervisord -n
