@@ -19,6 +19,6 @@ RUN ssh-keygen -A
 ADD supervisord.conf /etc/
 ADD 50-sshd.conf /etc/supervisord.d/
 
-RUN mkdir -p /var/log/supervisord/
+RUN mkdir -p /var/log/supervisord /var/run/supervisord
 
 CMD /usr/bin/supervisord -n

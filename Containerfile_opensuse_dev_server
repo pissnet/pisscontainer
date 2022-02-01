@@ -6,7 +6,6 @@ RUN zypper in -y libasan6 libopenssl-devel libsodium-devel \
 	rm -rf /var/cache;
 
 
-ENV WORKDIR=/home/pissnet/pissircd
 ENV PISSHOME=/home/pissnet
 ENV TZ=America/Sao_Paulo
 
@@ -22,11 +21,11 @@ RUN chown -R pissnet:users .; \
 
 USER pissnet
 
-ADD git_sync.sh .
+ADD git_sync.sh /usr/local/bin
 
-RUN ./git_sync.sh
+RUN /usr/local/bin/git_sync.sh
 
-WORKDIR $WORKDIR
+WORKDIR $PISSHOME/pissircd
 
 RUN ./Config --with-permissions=0660
 
@@ -55,11 +54,6 @@ WORKDIR $PISSHOME/unrealircd
 ADD --chown=pissnet:users conf conf
 ADD --chown=pissnet:users data data
 
-VOLUME /home/pissnet/pissircd
-VOLUME /home/pissnet/unrealircd/conf
-VOLUME /home/pissnet/unrealircd/data
-VOLUME /home/pissnet/unrealircd/logs
-VOLUME /home/pissnet/unrealircd
 
 EXPOSE 22 6667 6697 6900
 

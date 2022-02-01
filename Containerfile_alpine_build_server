@@ -21,8 +21,6 @@ USER pissnet
 
 COPY git_sync.sh /usr/local/bin
 
-# Everything from here and downwards is not easy to setup with volumes. Oops.
-
 RUN /usr/local/bin/git_sync.sh
 
 WORKDIR $USERHOME/pissircd
